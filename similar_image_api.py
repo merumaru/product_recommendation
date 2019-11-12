@@ -73,10 +73,12 @@ def get_similar_product(productID):
     distance = []
     for i in range(FEATURES.shape[0]):
         distance.append(mean_squared_error(FEATURES[index], FEATURES[i]))
-    similar_indices = sorted(range(len(distance)), key=lambda i: distance[i])[1:101]
+    similar_indices = sorted(range(len(distance)), key=lambda i: distance[i])
+    numRec = min(len(similar_indices), 101)
+    similar_indices = similar_indices[1:numRec]
 
     resp = app.response_class(
-        response=json.dumps(similar_indices),
+        response=json.dumps({"ProductList": similar_indices}),
         status=200,
         mimetype='application/json'
     )
