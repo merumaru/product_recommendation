@@ -2,8 +2,10 @@ import numpy as np
 from keras.applications.mobilenet_v2 import MobileNetV2
 from flask import Flask, request, jsonify
 from PIL import Image
-import requests, os
+import requests, os, json
 from io import BytesIO
+from scipy.spatial.distance import cosine
+from sklearn.metrics import mean_squared_error
 app = Flask(__name__)
 
 if os.path.exists('product_id_list_deploy.txt'):
@@ -60,7 +62,25 @@ def add_product(productID):
 
 @app.route("/<productID>/similarProducts", methods=['GET'])
 def get_similar_product(productID):
-    return productID
+    if productID not in PRODUCT_ID_LIST:
+        message = {
+            'message': 'Image not indexed.'
+        }
+        resp = jsonify(message)
+        resp.status_code = 400
+        return resp
+    index = PRODUCT_ID_LIST.index(productID)
+    distance = []
+    for i in range(FEATURES.shape[0]):
+        distance.append(mean_squared_error(FEATURES[index], FEATURES[i]))
+    similar_indices = sorted(range(len(distance)), key=lambda i: distance[i])[1:101]
+
+    resp = app.response_class(
+        response=json.dumps(similar_indices),
+        status=200,
+        mimetype='application/json'
+    )
+    return resp
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
