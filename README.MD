@@ -2,9 +2,14 @@
 Recommendation engine based on images
 
 ## Setup
-
+Install dependencies with 
 ```
 pip install -r requirements.txt
+```
+
+Start server with
+```
+python similar_image_api.py
 ```
 
 The server starts up at `<server-external-ip-address>:5000`
